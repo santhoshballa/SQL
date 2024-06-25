@@ -1,0 +1,232 @@
+﻿routine_definition
+/*
+Mohan deployed to Stage on  1 May 2020 
+Mohan deployed to PROD on  12 May 2020 
+*/
+CREATE PROCEDURE [Orders].[GetDocumentcheckDetails]
+(
+   @orderId bigint
+)
+AS
+BEGIN
+    -- declare @orderId bigint =190001722
+	select distinct DL.[DocumentLookUpName],DL.[DocumentLookUpCode],DT.[DocumentTypeCode] 
+	from orders.orders O 
+		inner join [provider].[MemberChartData] MCD on MCD.[MemberChartDataId]=O.[MemberChartDataId]
+		inner join [provider].[MemberCharts] MC on MC.[MemberChartId]=MCD.[MemberChartId]
+		inner join [Document].[DocumentTransaction] DT on DT.[MemberChartId]=MCD.[MemberChartId] and DT.[MemberChartDataId]=O.[MemberChartDataId]
+		right join [Document].[DocumentLookup] DL on DL.[DocumentLookUpCode]=DT.[DocumentTypeCode]
+		and MC.Isactive=1 and MCD.isactive=1 and o.isactive=1 and Dt.isactive=1 and DL.isactive=1
+		and [DocumentTypeCode] In ('DOC_AOB','DOC_HIPA','DOC_AGM','DOC_HHQ','DOC_PA')
+		and  o.orderid=@orderId 
+	 where DL.[DocumentLookUpCode] In ('DOC_AOB',
+
+/*
+
+*/
+CREATE PROCEDURE [Orders].[GetMemberchatStatus] 
+	@OrderID BIGINT
+AS
+BEGIN
+
+	DROP TABLE 	IF EXISTS #temp1
+	declare @JSON nvarchar(max)  
+	declare @MemberChartId bigint   
+	declare @status NVARCHAR(20)           
+	DECLARE @documentID BIGINT
+		SELECT @MemberChartId = MemberChartId
+		FROM provider.MemberChartData
+		WHERE MemberChartDataId IN (
+				SELECT MemberChartDataId
+				FROM orders.orders
+				WHERE OrderID = @OrderID
+				)
+
+	SELECT @JSON = JSON_query(ProcessData, '$.documents')
+	FROM provider.MemberChartData
+	WHERE MemberChartId = @MemberChartId
+		AND MinorProcessId = 21
+
+	SELECT TOP 1 *
+	INTO #temp1
+	FROM openjson(@JSON) WITH (
+			documentId BIGINT '$.documentId'
+			,documentTypeCode NVARCHAR(20) '$.documentTypeCode'
+			,orderId BIGINT '$.orderId'
+			,docStatus BIT '$.docStatus'
+			)
+	WHERE orderid = @OrderID
+		AND documentTypeCode = 'DOC_CM'
+	ORDER BY documentId DESC    
+	select @status = DocumentStatus
+	FROM Document.DocumentTransaction dt
+	JOIN #temp1 t1 ON dt.DocumentID
+  /*    
+   Created by: Padmaja Kuchipudi    
+   Modified Date: 16th March 2021    
+   Task 46243: Subcategories for DR/PA orders-order status    
+  */      
+--exec [provider].[GetDPAOrderStatus] 200264872  
+CREATE PROCEDURE [provider].[GetDPAOrderStatus_BK_10AUG2021]     
+@orderId BIGINT      
+AS        
+BEGIN    
+  
+select   
+top 1 DT.DocumentStatus   
+from orders.orders as o   
+left join [provider].[MemberChartData] MD ON MD.MemberChartDataId = O.MemberChartDataId        
+    AND MD.Isactive = 1       
+    JOIN [provider].[MemberCharts] MC ON MC.MemberChartId = MD.MemberChartId        
+    AND MD.Isactive = 1        
+   LEFT JOIN provider.MemberChartData MDDOC ON MDDOC.MemberChartId = MC.MemberChartId        
+    AND MDDOC.IsActive = 1        
+    AND MDDOC.MinorProcessId = 21        
+   OUTER APPLY OPENJSON(MDDOC.ProcessData, '$.documents') WITH (        
+     documentId BIGINT        
+     ,documentTypeCode VARCHAR(100)        
+     ,orderId BIGINT        
+
+--added  20-04-2021
+--MemberProfileId
+--DocumentID
+--DocProcessID
+--DocumentExtension
+--  exec [Orders].[GetRefundRequestsForFilter]  
+    
+--DECLARE @ChangeType VARCHAR(20)='RETURN'    
+--DECLARE @PaymentType VARCHAR(10)=''    
+--DECLARE @RefundStatus VARCHAR(20)=''    
+--DECLARE @StartIndex BIGINT=0    
+--DECLARE @EndIndex BIGINT=0    
+--DECLARE @NHMemberId VARCHAR(20) = NULL    
+--DECLARE @OrderId BIGINT=0    
+    
+CREATE PROCEDURE [Orders].[GetRefundRequestsForFilter]    
+(    
+ @ChangeType VARCHAR(20) = NULL,    
+ @PaymentType VARCHAR(10) = NULL,    
+ @RefundStatus VARCHAR(20) = NULL,    
+ @StartIndex BIGINT = NULL,    
+ @EndIndex BIGINT = NULL,    
+ @NHMemberId VARCHAR(20) = NULL,    
+ @OrderId BIGINT = 0    
+)    
+AS    
+BEGIN     
+ SELECT *
+FROM (
+	SELECT ROW_NUMBER() OVER (
+			ORDER BY rt.RowId
+			) AS FilterIndex
+		,rt.*
+		,mpf.MemberProfileId 'MemberProfileId'
+		,case when (
+			SELECT cast(ISNULL(JSON_value(RequestData, '$.DocumentID'), 0
+-- 11/24/2020 - Damian Montero - New Report created on Production for DHC Hearing test on InAppBi
+
+-- DHC McKesson - Hearing Test report
+
+--exec [inappbi].[DHC_Hearing_test_report]
+
+CREATE   PROCEDURE inappbi.DHC_Hearing_test_report
+AS 
+BEGIN
+
+-- All  Tests	
+DECLARE @StartDate DATE;
+DECLARE @EndDate DATE;
+
+
+drop table if EXISTS #MP_HearingTests
+
+SET @StartDate='01/01/2020'; -- DATEADD(yy, DATEDIFF(yy, 0, GETDATE()), 0); -- Begining of the year
+SET @EndDate = '11/30/2020';  -- DATEADD(yy, DATEDIFF(yy, 0, GETDATE()) + 1, -1); -- end of the year.
+
+SET @StartDate= DATEADD(yy, DATEDIFF(yy, 0, GETDATE()), 0); -- Begining of the year
+SET @EndDate =  DATEADD (dd, -1, DATEADD(mm, DATEDIFF(mm, 0, GETDATE()) + 1, 0)); -- DATEADD(yy, DATEDIFF(yy, 0, GETDATE()) + 1, -1); -- end of the year.
+
+
+
+
+DECLARE @TodaysDate DATE;
+SET @TodaysDate = @EndDate
+SELECT DISTINCT
+ds.DeviceId,
+JSON_VALUE(dev.DeviceSettings,'$.NameOfClinic') ClinicName,
+ds.DeviceSessionId, ds.SessionId
+CREATE PROCEDURE [Document].[GetDocumentsListByOrderMemberChartDataId]
+(
+  @OrderMemberchartDataId bigint,
+  @DocType varchar(15)
+)
+AS
+BEGIN
+    -- SET NOCOUNT ON added to prevent extra result sets from
+    -- interfering with SELECT statements.
+    SET NOCOUNT ON
+BEGIN
+    select top 1 
+	DT.DocProcessID as DocumentProcessId,
+	DT.DocumentName as DocumentName,
+	DT.DocumentTypeCode as DocumentType,
+	DO.DocumentObject as DocumentData,
+	DT.DocumentExtension as Extension
+	from provider.MemberChartData Mc join [Document].[DocumentTransaction]  DT on DT.MemberChartId=MC.MemberChartId 
+    join [Document].[DocumentObject] DO on Do.DocumentObjectID=DT.DocumentObjectID 
+    where Mc.MemberChartDataId=@OrderMemberchartDataId and DT.DocumentTypeCode = @DocType  and DT.IsActive=1 
+	and Do.IsActive=1 and  Mc.IsActive=1 order by DT.CreateDate desc
+END
+END
+-- =============================================
+-- Author:      <Author, pulikamsuneetha, Name>
+-- Create Date: <Create Date, 10-04-2020, >
+-- Description: <Description,to get document object data based on the ordermemberchartdataid , >
+-- =============================================
+CREATE PROCEDURE [Document].[GetDocumentsListbyOrdermhtId]
+(
+    -- Add the parameters for the stored procedure here
+  @OrderMemberchartDataId bigint,
+  @DocType varchar(15)
+)
+AS
+BEGIN
+    -- SET NOCOUNT ON added to prevent extra result sets from
+    -- interfering with SELECT statements.
+    SET NOCOUNT ON
+
+  	IF (@DocType ='AGM')  
+BEGIN
+    select top 1 DO.DocumentObjectID,DocumentObject,DO.IsActive,'' as DocumentMasterModels,'' as DocumentTransactionModels 
+	,Do.CreateUser ,DO.CreateDate,DO.ModifyUser,DO.ModifyDate ,cast(1 as bit ) as isFileholdSync
+	from provider.MemberChartData Mc
+    left join [Document].[DocumentTransaction]  DT on DT.MemberChartDataId=MC.MemberChartDataId
+  /*      
+   Created by: Padmaja Kuchipudi      
+   Modified Date: 16th March 2021      
+   Task 46243: Subcategories for DR/PA orders-order status      
+  
+       
+   Modified by: Sravani Gogulamudi      
+   Modified Date: 6th August 2021      
+   Changes: Removed Left joins for MemberChartData,MemberCharts and DocumentTransaction tables.
+  */         
+--exec [provider].[GetDPAOrderStatus] 200264872    
+CREATE PROCEDURE [provider].[GetDPAOrderStatus]       
+@orderId BIGINT        
+AS          
+BEGIN      
+    
+select     
+top 1 DT.DocumentStatus  
+from orders.orders as o     
+ join [provider].[MemberChartData] MD ON MD.MemberChartDataId = O.MemberChartDataId          
+    AND MD.Isactive = 1   -- Removed Left Join and Added Join as getting null values      
+    JOIN [provider].[MemberCharts] MC ON MC.MemberChartId = MD.MemberChartId          
+    AND MD.Isactive = 1    -- Removed Left Join and Added Join as getting null values        
+    JOIN [provider].Member
+
+(8 rows affected)
+
+
+Completion time: 2021-08-16T17:21:56.7358267-04:00

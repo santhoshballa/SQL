@@ -1,0 +1,142 @@
+-- update
+{
+	"productPrice": 4150.0,
+	"productPriceDetails": {
+		"originalPrice": 4150.0,
+		"details": []
+	},
+	"insuranceBenefit": null,
+	"benefitUsed": null,
+	"benefitAvailable": null,
+	"medicaidBenefit": null,
+	"adjustmentDetails": [],
+	"adjustments": 0.0,
+	"appliedCredit": null,
+	"memberResponsibility": 3150.0,
+	"unitPrice": 2075.0,
+	"pairPrice": 4150.0,
+	"forwardCredits": null,
+	"refundDetails": null
+}
+
+
+/*
+Ticket #  39759
+Please transfer payment of $3500 from order#200350225 to order200471389.
+Also please apply benefit of $1250 per ear.
+Thank you.
+*/
+
+--Update | Ticket #39759
+{
+	"productPrice": 6000.0,
+	"productPriceDetails": {
+		"originalPrice": 6000.0,
+		"details": []
+	},
+	"insuranceBenefit": null,
+	"benefitUsed": null,
+	"benefitAvailable": null,
+	"medicaidBenefit": null,
+	"adjustmentDetails": [],
+	"adjustments": 0.0,
+	"appliedCredit": null,
+	"memberResponsibility": 3500.0, -- Changed to the amount in the request ($3500)
+	"unitPrice": 3000.0,
+	"pairPrice": 6000.0,
+	"forwardCredits": null,
+	"refundDetails": null
+}
+
+Amount = 3500 -- Changed to the amount in the request
+
+
+
+
+
+
+
+
+
+
+--Update, Applied a benefit of $500 per ear, 3150 Payment Transfer fromOrder to ToOrder | Ticket 39633
+{
+	"applied": {
+		"benefitsLeft": 500, -- Benefit applied 500 to left ear
+		"benefitsRight": 500 -- Benefit applied 500 to right ear
+	},
+	"eligible": {
+		"benefitsRight": 500, -- Do not update
+		"benefitsLeft": 500   -- DO not update
+	},
+	"used": {
+		"benefitsRight": 0,    -- update to 0
+		"benefitsLeft": 0      -- update to 0
+	},
+	"available": {
+		"benefitsRight": 500,      -- update to 500
+		"benefitsLeft": 500        -- update to 500
+	},
+	"remaining": {
+		"benefitsLeft": 0,
+		"benefitsRight": 0
+	},
+	"benefitAppliedAmount": 1000,
+	"outOfPocket": 3150,                   update to the payment of $3150
+	"bencat": "Amount",
+	"technologyLevel": "Advanced",
+	"benfortype": "Per Ear",
+	"terminationDate": "2021-12-31T05:00:00.000Z",
+	"benfreqtype": "CY"
+}
+
+/*
+
+
+
+
+
+
+
+/*
+Ticket #  39759
+Please transfer payment of $3500 from order#200350225 to order200471389.
+Also please apply benefit of $1250 per ear.
+Thank you.
+*/
+
+-- Update | Ticket # 39759
+{
+	"applied": {
+		"benefitsLeft": 1250, -- update this to the benefit amount $1250
+		"benefitsRight": 1250 -- update this to the benefit anount $1250
+	},
+	"eligible": {
+		"benefitsRight": 1250,  -- No change required
+		"benefitsLeft": 1250    -- No change required
+	},
+	"used": {
+		"benefitsRight": 0,  -- substract eligible-applied, used is zero because its not yet ordered, will update once an order is created
+		"benefitsLeft": 0    -- substract eligible-applied  used is zero because its not yet ordered, will update once an order is created
+	},
+	"available": {
+		"benefitsRight": 1250, -- An order is not yet placed and so available 1250
+		"benefitsLeft": 1250   -- An order is not yet placed and so available 1250
+	},
+	"remaining": {
+		"benefitsLeft": 0,     -- Eligible - Benefit, that is the amount that is remaining after the benefits are applied
+		"benefitsRight": 0     -- Eligible - Benefit, that is the amount that is remaining after the benefits are applied
+	},
+	"benefitAppliedAmount": 2500,   Change to the sum of costs for each ear. (1250 + 1250)
+	"outOfPocket": 3500,                   update this amount which is the transfer payment amount in the request
+	"bencat": "Amount",
+	"technologyLevel": "Specialty",
+	"benfortype": "Per Ear",
+	"terminationDate": "2021-12-31T05:00:00.000Z",
+	"benfreqtype": "CY"
+}
+
+
+
+
+
