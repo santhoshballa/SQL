@@ -1,0 +1,1302 @@
+select ConsultationInPerson as VisitType,
+[1] as January, [2] as February, [3] as March, [4] as April, [5] as May, [6] as June, [7] as July, [8] as August, [9] as September, [10] as October, [11] as November, [12] as December
+from
+(select month(DateOfVisit) as DateOfVisit, (case when Virtual like '%yes%' then 'Consultation/Virtual' else 'In-Person Visit' end ) as ConsultationInPerson
+from dbo.MemberLevelBreakDownMain ) p
+pivot
+(
+count(DateOfVisit)
+for DateofVisit in ([1],[2],[3],[4],[5],[6],[7],[8],[9],[10],[11],[12])
+) as pvt
+
+
+select Tasks as TaskType, sum(TasksCount) as Amount from 
+(
+select VisitID, DateOfVisit, 'Companionship' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where Companionship =1
+union
+select VisitID, DateOfVisit, 'HouseTasks' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where HouseTasks =1
+union
+select VisitID, DateOfVisit, 'Transportation' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where Transportation =1
+union
+select VisitID, DateOfVisit, 'DrVisits' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where DrVisits =1
+union
+select VisitID, DateOfVisit, 'TechHelp' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where TechHelp =1
+union
+select VisitID, DateOfVisit, 'GroceryShopping' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where GroceryShopping =1
+union
+select VisitID, DateOfVisit, 'PetHelp' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain   where PetHelp =1
+union
+select VisitID, DateOfVisit, 'RunErrands' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where RunErrands =1
+union
+select VisitID, DateOfVisit, 'Exercise' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where Exercise =1
+union
+select VisitID, DateOfVisit, 'MedicationRX' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where MedicationRX =1
+) a
+group by Tasks
+Order by 2 desc
+
+
+
+-- Experience Health | The SQL queries to generate the report for Blake.
+-- Step 1 | Members Enrolled, Total Hours Utilized and Hours per enrolled member YTD
+-- UnPivot Members Enrolled, Total Hours Utilized and Hours per enrolled member YTD
+select 
+'Member Enrolled' as SummaryYTD, MembersEnrolled as Count from 
+(
+select count(MemberID) as MembersEnrolled,  round(sum(Hours),2) as TotalHoursUtilized, round((sum(Hours)/cast(count(MemberID) as float)),2) as HoursPerEnrolledMemberYTD 
+from (
+      select MemberID, sum(cast(hours as float)) as Hours from dbo.MemberLevelBreakDownMain
+      group by MemberID
+     ) a
+) a
+UNION
+
+select 
+'Total Hours Utilized' as SummaryYTD, TotalHoursUtilized as Count from 
+(
+select count(MemberID) as MembersEnrolled,  round(sum(Hours),2) as TotalHoursUtilized, round((sum(Hours)/cast(count(MemberID) as float)),2) as HoursPerEnrolledMemberYTD 
+from (
+      select MemberID, sum(cast(hours as float)) as Hours from dbo.MemberLevelBreakDownMain
+      group by MemberID
+     ) a
+) a
+UNION
+select 
+'Hours Per Enrolled Member YTD' as SummaryYTD, HoursPerEnrolledMemberYTD as Count from 
+(
+select count(MemberID) as MembersEnrolled,  round(sum(Hours),2) as TotalHoursUtilized, round((sum(Hours)/cast(count(MemberID) as float)),2) as HoursPerEnrolledMemberYTD 
+from (
+      select MemberID, sum(cast(hours as float)) as Hours from dbo.MemberLevelBreakDownMain
+      group by MemberID
+     ) a
+) a
+
+-- Step 2 | Consultation Vs In Person Visit
+select ConsultationInPerson as VisitType, 
+[1] as January, [2] as February, [3] as March, [4] as April, [5] as May, [6] as June, [7] as July, [8] as August, [9] as September, [10] as October, [11] as November, [12] as December
+from
+(select month(DateOfVisit) as DateOfVisit, (case when Virtual like '%yes%' then 'Consultation/Virtual' else 'In-Person Visit' end ) as ConsultationInPerson
+from dbo.MemberLevelBreakDownMain ) p
+pivot
+(
+count(DateOfVisit)
+for DateofVisit in ([1],[2],[3],[4],[5],[6],[7],[8],[9],[10],[11],[12])
+) as pvt
+
+-- Step 3 | Tasks Accomplished
+select Tasks as TaskType, sum(TasksCount) as Amount from 
+(
+select VisitID, DateOfVisit, 'Companionship' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where Companionship =1
+union
+select VisitID, DateOfVisit, 'HouseTasks' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where HouseTasks =1
+union
+select VisitID, DateOfVisit, 'Transportation' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where Transportation =1
+union
+select VisitID, DateOfVisit, 'DrVisits' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where DrVisits =1
+union
+select VisitID, DateOfVisit, 'TechHelp' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where TechHelp =1
+union
+select VisitID, DateOfVisit, 'GroceryShopping' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where GroceryShopping =1
+union
+select VisitID, DateOfVisit, 'PetHelp' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain   where PetHelp =1
+union
+select VisitID, DateOfVisit, 'RunErrands' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where RunErrands =1
+union
+select VisitID, DateOfVisit, 'Exercise' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where Exercise =1
+union
+select VisitID, DateOfVisit, 'MedicationRX' as Tasks, 1 as TasksCount from dbo.MemberLevelBreakDownMain  where MedicationRX =1
+) a
+group by Tasks
+Order by 2 desc
+
+-- Step 4 | Locations of Visits YTD
+select City, Count(*) as NoOfVisitsPerCity from dbo.MemberLevelBreakDownMain
+group by City
+-- Step 5 | Enrolled Members, Count of Visits
+select 
+(FirstName + ' ' + LastName) as Name,MemberID ,Count(MemberID) as MemberCount
+from dbo.MemberLevelBreakDownMain
+group by (FirstName + ' ' + LastName),MemberID
+
+
+
+[8/2/2022 9:50 AM] Santhosh Balla
+drop table if exists #temp;
+
+drop table if exists #tempfinal;
+/*
+
+select * from elig.MarketingMaterialMemberLog
+*/
+-- select all active records from eligibility, for a data source, where todays date should be between benefit start and benefit end date
+
+select 
+
+    'N' as sentflag,
+
+    MasterMemberID,
+
+    datasource,
+
+    SubscriberID,
+
+    insHealthPlanID,
+
+    FirstName,
+
+    LastName,
+
+    MailingAddress1,
+
+    Address1,
+
+    MailingAddress2,
+
+    Address2,
+
+    MailingCity,
+
+    City,
+
+    MailingState, 
+
+    State,
+
+    MailingZipCode,
+
+    ZipCode,
+
+    Language,
+
+    insCarrierID,
+
+    BenefitStartDate,
+
+    ContractNbr,
+
+    PBPID 
+
+into #temp
+
+from elig.mstrEligBenefitData 
+
+where 1=1 
+
+    and DataSource in (SELECT DataSource FROM elig.ClientCodes cc WHERE MasterDataSource='ELIG_MVP')
+
+    and isActive = 1
+
+    AND   CAST(GETDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time' AS DATE) BETWEEN RecordEffDate AND RecordEndDate
+
+    AND  (CAST(GETDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time' AS DATE) BETWEEN BenefitStartDate AND BenefitEndDate    
+
+        OR (BenefitStartDate > CAST(GETDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time' AS DATE) AND BenefitEndDate > BenefitStartDate)
+
+        )
+--select Language,count(*) cnt from #temp group by Language
+--select 
+
+--case when Language = 'SPA' then 'Spanish'
+
+--       when Language = 'ENG' then 'English'
+
+--       when Language = 'VIE' then 'Vietnamese'
+
+--       when Language = 'CHI' then 'Chinese' else 'English' end as Language,
+
+--count(*) cnt 
+
+--from #temp 
+
+--group by case when Language = 'SPA' then 'Spanish'
+
+--       when Language = 'ENG' then 'English'
+
+--       when Language = 'VIE' then 'Vietnamese'
+
+--       when Language = 'CHI' then 'Chinese' else 'English' end
+-- IF a catalog has already been sent, mark the record with a flag of 'y'
+
+update a set sentflag='Y'
+
+    from #temp a
+
+    join elig.MarketingMaterialMemberLog b on 
+
+    a.SubscriberID = b.SubscriberID 
+
+   -- and a.MasterMemberID = b.MasterMemberID
+
+    and 'ELIG_MVP' = b.DataSource
+
+    and a.inscarrierid = 141
+
+    where 1=1
+
+   -- and b.DataTypeDesc in ( 'Catalog 2021 (HPlanID=2692)' ) --, 'Catalog 2022 (HPlanID=2692)' )
+select vendor, datatypedesc, cast (createdate as date), count(*) 
+
+from elig.MarketingMaterialMemberLog
+
+where datasource = 'ELIG_MVP'
+
+group by vendor, datatypedesc, cast (createdate as date)
+
+order by 3 
+
+
+--select * from elig.Fulfill_itemcodes
+drop table 
+
+    if exists #tempfinal;
+
+select
+
+    sentflag,
+
+    MasterMemberID,
+
+    datasource,
+
+    insCarrierID,
+
+    insHealthPlanID,
+
+    SubscriberID as SubscriberID,
+
+    MemberFirstName =(select stuff((
+
+           select ' '+upper(left(T3.V, 1))+lower(stuff(T3.V, 1, 1, ''))
+
+           from (select cast(replace((select ltrim(rtrim(FirstName)) as '*' for xml path('')), ' ', '<X/>') as xml).query('.')) as T1(X)
+
+             cross apply T1.X.nodes('text()') as T2(X)
+
+             cross apply (select T2.X.value('.', 'varchar(30)')) as T3(V)
+
+           for xml path(''), type
+
+           ).value('text()[1]', 'varchar(30)'), 1, 1, '') )
+    --,MiddleInitial= ltrim(rtrim(MiddleInitial))
+    ,MemberLastName = (select stuff((
+
+           select ' '+upper(left(T3.V, 1))+lower(stuff(T3.V, 1, 1, ''))
+
+           from (select cast(replace((select ltrim(rtrim(LastName)) as '*' for xml path('')), ' ', '<X/>') as xml).query('.')) as T1(X)
+
+             cross apply T1.X.nodes('text()') as T2(X)
+
+             cross apply (select T2.X.value('.', 'varchar(30)')) as T3(V)
+
+           for xml path(''), type
+
+           ).value('text()[1]', 'varchar(30)'), 1, 1, '') )
+    ,MemberAddress1 = (select stuff((
+
+           select ' '+upper(left(T3.V, 1))+lower(stuff(T3.V, 1, 1, ''))
+
+           from (select cast(replace((select ltrim(rtrim(isnull(MailingAddress1,Address1))) as '*' for xml path('')), ' ', '<X/>') as xml).query('.')) as T1(X)
+
+             cross apply T1.X.nodes('text()') as T2(X)
+
+             cross apply (select T2.X.value('.', 'varchar(30)')) as T3(V)
+
+           for xml path(''), type
+
+           ).value('text()[1]', 'varchar(30)'), 1, 1, '') )
+    ,MemberAddress2 = (select stuff((
+
+           select ' '+upper(left(T3.V, 1))+lower(stuff(T3.V, 1, 1, ''))
+
+           from (select cast(replace((select ltrim(rtrim(isnull(MailingAddress2,Address2))) as '*' for xml path('')), ' ', '<X/>') as xml).query('.')) as T1(X)
+
+             cross apply T1.X.nodes('text()') as T2(X)
+
+             cross apply (select T2.X.value('.', 'varchar(30)')) as T3(V)
+
+           for xml path(''), type
+
+           ).value('text()[1]', 'varchar(30)'), 1, 1, '') )
+    ,MemberCity = (select stuff((
+
+           select ' '+upper(left(T3.V, 1))+lower(stuff(T3.V, 1, 1, ''))
+
+           from (select cast(replace((select ltrim(rtrim(isnull(MailingCity,City))) as '*' for xml path('')), ' ', '<X/>') as xml).query('.')) as T1(X)
+
+             cross apply T1.X.nodes('text()') as T2(X)
+
+             cross apply (select T2.X.value('.', 'varchar(30)')) as T3(V)
+
+           for xml path(''), type
+
+           ).value('text()[1]', 'varchar(30)'), 1, 1, '') )
+    ,MemberState = isnull(ltrim(rtrim(State)),'')   
+
+    ,MemberZipCode = isnull(substring(ltrim(rtrim(isnull(MailingZipCode,ZipCode))),1,5),'')  
+
+    ,[Language] = isnull((case 
+
+                                --when Language = 'SPA' then 'Spanish'
+
+                                --when Language = 'ENG' then 'English'
+
+                                --when Language = 'VIE' then 'Vietnamese'
+
+                                --when Language = 'KOR' then 'Korean'
+
+                                when Language like '%CHI%' then 'Chinese' 
+
+                                else 'English' end),'') 
+
+     ,cast (null as varchar(100)) as packagecode 
+
+    ,cast (null as varchar(100)) as packagedesc
+
+    ,hp.HealthPlanName  
+
+into #tempfinal
+
+from #temp t 
+
+    inner join Insurance.InsuranceHealthPlans hp on t.insHealthPlanID = hp.InsuranceHealthPlanID 
+
+where 1=1
+
+and sentflag='N'
+--select * from [elig].[Fulfill_PackageCodes] where PackageCode like '%CCHP%'
+--update #tempfinal set Language = 'English'
+drop table if exists #packagecodes;
+select packagecode, packagedesc , 
+
+    case when 
+
+        packagedesc like '%English%' then 'English'
+
+        --when packagedesc like '%Chinese%' then  'Chinese'
+
+        else 'English'
+
+        --when packagedesc like '%Korean%' then  'Korean'
+
+        --when packagedesc like '%Vietnamese%' then  'Vietnamese'
+
+        --when packagedesc like '%Spanish%' then  'Spanish' 
+
+        end as language
+
+into #packagecodes
+
+from [elig].[Fulfill_PackageCodes]
+
+where packagecode in ( 
+
+'Pkg-MVPOTCPDF2022' )
+
+
+update a set
+
+    packagecode = p.packagecode
+
+    , packagedesc = p.packagedesc
+
+--select * 
+
+from #tempfinal a 
+
+     inner join #packagecodes p on  a.Language = p.Language 
+
+
+--select distinct language  from #tempfinal 
+
+--select count(*) from #temp 
+
+
+select language, packagecode, HealthPlanName,  count(*) as membercounts
+
+from #tempfinal a
+
+where  sentflag='N'
+
+group by 
+
+    packagecode,HealthPlanName,language
+
+order by 1     
+--select SentDate, Vendor, DataTypeDesc ,count(*) 
+
+--select * 
+
+--from elig.MarketingMaterialMemberLog
+
+--where datasource= 'ELIG_MVP'
+
+--group by SentDate , Vendor, DataTypeDesc 
+
+--order by 1
+insert into elig.MarketingMaterialMemberLog (datasource,MasterMemberID,SubscriberID,insCarrierID,insHealthPlanID,Vendor,DataTypeDesc,snapshotflag,CreateDate, comments)
+
+select 
+
+         [DataSource]
+
+        , [MasterMemberID]
+
+        , [SubscriberID]
+
+        , [insCarrierID]
+
+        , [insHealthPlanID]
+
+        , 'Fineline'
+
+        , packagecode
+
+        , 'DELTA'
+
+        , getdate()
+
+        ,packagedesc
+
+from #tempfinal 
+
+where 1=1
+
+and sentflag = 'N'
+
+
+select 0 as fororder, 
+
+        'FulfillmentID' 
+
+        +'|'+ 'NHMemberID' 
+
+        +'|'+ 'SubscriberID' 
+
+        +'|'+ 'MemberFirstName' 
+
+        +'|'+ 'MemberLastName' 
+
+        +'|'+ 'Address1' 
+
+        +'|'+ 'Address2' 
+
+        +'|'+ 'City'
+
+        +'|'+ 'State'
+
+        +'|'+ 'ZipCode'
+
+        +'|'+ 'Language'
+
+        +'|'+ 'PackageCode'
+
+        +'|'+ 'pkgcodeFlag'
+
+        +'|'+ 'DateSent'
+
+        +'|'+ 'NCOACheckFlag'
+
+        as Outputtext
+
+        ,0 id
+
+union all
+
+select  distinct 1 as fororder,    
+
+    isnull(ltrim(rtrim(cast(b.Id as varchar))),'') --'FulfillmentID' 
+
+        +'|'+ isnull(ltrim(rtrim(c.NHMemberID)),'NH-00') --'NHMemberID' 
+
+        +'|'+ isnull(ltrim(rtrim(a.SubscriberID)),'') --'SubscriberID' 
+
+        +'|'+ isnull(ltrim(rtrim(a.MemberFirstName)),'') --'MemberFirstName' 
+
+        +'|'+ isnull(ltrim(rtrim(a.MemberLastName)),'') --'MemberLastName' 
+
+        +'|'+ isnull(ltrim(rtrim(a.MemberAddress1)),'') -- 'MemberAddress1' 
+
+        +'|'+ isnull(ltrim(rtrim(a.MemberAddress2)),'') --'MemberAddress2' 
+
+        +'|'+ isnull(ltrim(rtrim(a.MemberCity)),'') -- 'MemberCity' 
+
+        +'|'+ isnull(ltrim(rtrim(a.MemberState)),'') -- 'MemberState' 
+
+        +'|'+ isnull(substring(ltrim(rtrim(a.MemberZipCode)),1,5),'') --'MemberZipCode' 
+
+        +'|'+ isnull(ltrim(rtrim(Language)),'') --Language
+
+        +'|'+isnull(ltrim(rtrim(packagecode)),'') --PackageCode
+
+        +'|'+ 'Y' --pkgcodeFlag
+
+        +'|'+ convert(varchar, getdate() , 112) --DateSent
+
+        +'|'+ '0' --NCOACheckFlag
+
+        as Outputtext
+
+        ,b.Id
+
+from #tempfinal a
+
+    join elig.MarketingMaterialMemberLog b on a.SubscriberID = b.SubscriberID
+
+                     and a.MasterMemberID = b.MasterMemberID 
+
+                    --and a.packagedesc = b.DataTypeDesc 
+
+                    and cast(b.CreateDate as date )  = cast( getdate() as date) 
+
+    left join master.Members c on b.MasterMemberID = c.MemberID and c.IsActive = 1
+
+where 1=1
+
+    and b.datasource like 'ELIG_MVP'
+
+    and a.sentflag = 'N'
+	
+	
+	
+	
+[9/27/2022 5:35 PM] Santhosh Balla
+---------------------------------------------This is the beginning of OTC Meals Cancelled ---------------------------------------------
+[9/27/2022 5:35 PM] Santhosh Balla
+
+
+drop table #Orders
+
+select * into #Orders from (
+
+select o.*,
+
+
+json_value(o.MemberData, '$.MemberName') as MemberData_MemberName
+
+,json_value(o.MemberData, '$.insCarrierId') as MemberData_insCarrierId
+
+,json_value(o.MemberData, '$.insPlanId') as MemberData_insPlanId
+
+,json_value(o.MemberData, '$.insuranceNbr') as MemberData_insuranceNbr
+
+
+,o.orderID as OrderID_Orders, o.OrderStatusCode as OrderStatusCode_Orders, o.Status as Status_Orders
+from orders.orders o  where o.OrderStatusCode = 'CAN' and o.Source = 'OTC_MEAL' and o.OrderType = 'OTC' and o.IsActive =1
+
+) a
+
+
+
+drop table #OrderTransactionData_CAN
+
+select * into #OrderTransactionData_CAN from
+
+(
+
+select
+
+a.IsActive as IsActive_CAN, a.OrderTransactionID as OrderTransactionID_CAN, a.OrderID as OrderID_CAN, a.OrderStatusCode as OrderStatusCode_CAN , a.OrderTransactionData as OrderTransactionData_CAN
+
+,json_value(a.OrderTransactionData, '$.CancelledDate') as OrderTransactionData_CancelledDate_CAN
+
+,json_value(a.OrderTransactionData, '$.Reason') as OrderTransactionData_Reason_CAN
+
+,json_value(a.OrderTransactionData, '$.AdditionalComments') as OrderTransactionData_AdditionalComments_CAN
+
+from Orders.OrderTransactionDetails a where a.OrderStatusCode = 'CAN' and a.IsActive = 1 and
+
+a.orderID in (Select o.OrderID from Orders.Orders o where o.OrderStatusCode = 'CAN' and o.Source = 'OTC_MEAL' and o.OrderType = 'OTC' and o.IsActive =1)
+
+
+) a
+
+
+
+drop table #OrderTransactionData_VOI
+
+select * into #OrderTransactionData_VOI from
+
+(
+
+select
+
+b.IsActive as IsActive_VOI, b.OrderTransactionID as OrderTransactionID_VOI, b.OrderID as OrderID_VOI, b.OrderStatusCode as OrderStatusCode_VOI, b.OrderTransactionData as OrderTransactionData_VOI
+
+
+,json_value(b.OrderTransactionData, '$.orderId') as OrderTransactionData_orderId_VOI
+
+,json_value(b.OrderTransactionData, '$.orderDate') as OrderTransactionData_orderDate_VOI
+
+,json_value(b.OrderTransactionData, '$.orderGroupId') as OrderTransactionData_orderGroupId_VOI
+
+from Orders.OrderTransactionDetails b
+
+where b.OrderStatusCode in ( 'VOI', 'INI') and b.IsActive = 1 and
+
+b.orderID in (Select o.OrderID from Orders.Orders o where o.OrderStatusCode = 'CAN' and o.Source = 'OTC_MEAL' and o.OrderType = 'OTC' and o.IsActive =1)
+
+) a
+
+
+
+select * into #InsuranceHealthPlans from
+
+(
+
+select
+ic.InsuranceCarrierID, ic.InsuranceCarrierName, ic.IsActive as IsActive_InsuranceCarrier  
+
+,hp.InsuranceHealthPlanID, hp.HealthPlanName, hp.IsActive as IsActive_InsuranceHealthPlan
+
+from insurance.InsuranceCarriers ic join insurance.InsuranceHealthPlans hp on ic.InsuranceCarrierID = hp.InsuranceCarrierID
+
+where ic.IsActive =1 and hp.isActive = 1 and
+
+ic.InsuranceCarrierID in (select distinct MemberData_insCarrierId from #Orders) and
+
+hp.InsuranceHealthPlanID in (select distinct MemberData_insPlanId from #Orders)
+
+) a
+
+
+
+Drop Table #CancelledMealOrders
+
+select * into #CancelledMealOrders from (
+
+select o.*, ihp.*, a.*, b.*
+
+from
+
+#Orders o
+
+left join #OrderTransactionData_CAN a on o.OrderID_Orders = a.OrderID_CAN
+
+left join #OrderTransactionData_VOI b on a.OrderID_CAN = b.OrderID_VOI
+
+left join #InsuranceHealthPlans ihp on (ihp.InsuranceCarrierID = o.MemberData_insCarrierId and ihp.InsuranceHealthPlanID = o.MemberData_insPlanId)
+
+) a
+
+
+select * from #CancelledMealOrders
+
+
+
+Select
+
+OrderID, Ordertype, NHMemberID, OrderStatusCode, MemberData_MemberName as MemberName, InsuranceCarrierID, InsuranceCarrierName, InsuranceHealthPlanID, HealthPlanName as InsuranceHealthPlanName,
+
+OrderTransactionData_OrderDate_VOI as OrderDate, OrderTransactionData_CancelledDate_CAN as CancelledDate,
+
+OrderTransactionData_Reason_CAN as ReasonForCancellation, OrderTransactionData_AdditionalComments_CAN as ReasonAdditionalComments
+
+from #CancelledMealOrders
+
+where OrderTransactionData_OrderDate_VOI is not null
+
+Order by cast(OrderTransactionData_CancelledDate_CAN as date) desc, InsuranceCarrierName
+
+
+
+Select
+
+OrderID,
+
+-- Ordertype, NHMemberID, OrderStatusCode, MemberData_MemberName as MemberName, InsuranceCarrierID, InsuranceCarrierName, InsuranceHealthPlanID, HealthPlanName as InsuranceHealthPlanName,
+
+OrderTransactionData_OrderDate_VOI as OrderDate, OrderTransactionData_CancelledDate_CAN as CancelledDate
+
+--OrderTransactionData_Reason_CAN as ReasonForCancellation, OrderTransactionData_AdditionalComments_CAN as ReasonAdditionalComments
+
+from #CancelledMealOrders
+
+where OrderTransactionData_OrderDate_VOI is not null
+
+Order by cast(OrderTransactionData_CancelledDate_CAN as date) desc, InsuranceCarrierName
+
+
+
+Drop table #CancelledMealOrdersFinal
+
+select * into #CancelledMealOrdersFinal from (
+
+Select
+
+OrderID,
+
+-- Ordertype, NHMemberID, OrderStatusCode, MemberData_MemberName as MemberName, InsuranceCarrierID, InsuranceCarrierName, InsuranceHealthPlanID, HealthPlanName as InsuranceHealthPlanName,
+
+Cast(OrderTransactionData_OrderDate_VOI as Date) as OrderDate, Cast(OrderTransactionData_CancelledDate_CAN as Date) as CancelledDate
+
+--OrderTransactionData_Reason_CAN as ReasonForCancellation, OrderTransactionData_AdditionalComments_CAN as ReasonAdditionalComments
+
+from #CancelledMealOrders
+
+-- where OrderTransactionData_OrderDate_VOI is not null
+
+--Order by cast(OrderTransactionData_OrderDate_VOI as Date) desc, cast(OrderTransactionData_CancelledDate_CAN as date) desc, InsuranceCarrierName
+
+) a
+
+
+select * from #CancelledMealOrdersFinal Order by OrderID asc, OrderDate asc, CancelledDate desc
+
+
+select * from orders.orders where orderid in (203678484, 203678208)
+
+select * from orders.orderItems where orderid in (203678484, 203678208)
+
+select * from orders.orderTransactionDetails where orderid in (203678484, 203678208)
+
+
+select * from orders.orders where orderid in (203678484, 203678487, 203678488, 203678485, 203678486)
+
+select * from orders.orderItems where orderid in (203678484, 203678487, 203678488, 203678485, 203678486)
+
+select * from orders.orderTransactionDetails where orderid in (203678484, 203678487, 203678488, 203678485, 203678486)
+
+
+/*
+OrderID    OrderDate    CancelledDate
+203678484    2022-09-23    2022-09-23
+203678485    2022-09-23    2022-09-23
+203678486    2022-09-23    2022-09-23
+203678487    2022-09-23    2022-09-23
+203678488    2022-09-23    2022-09-23
+
+
+*/
+
+
+
+select * from orders.orders where RefOrderID in (203678484, 203678487, 203678488, 203678485, 203678486)
+
+select * from orders.orderItems where orderid in (203678484, 203678487, 203678488, 203678485, 203678486)
+
+select * from orders.orderTransactionDetails where orderid in (203678484, 203678487, 203678488, 203678485, 203678486)
+
+
+/*
+
+For OTC Meals, The first order ( OrderID 203678484) is created with RefOderId is null, This has dependent Orders ( Order ID 203678485,203678486,203678487,203678488 ) where the RefOrderID is the same as the Initial Order that was created.
+
+
+*/
+[9/27/2022 5:35 PM] Santhosh Balla
+---------------------------------------------This is the ENd of OTC Meals Cancelled --------------------------------------------
+
+
+
+[10/6/2022 10:40 PM] Santhosh Balla
+--------------------------------------------------Aetna Benefit Summary start------------------------------------------------------------
+[10/6/2022 10:41 PM] Santhosh Balla
+
+
+--- The process starts here
+
+DROP TABLE IF EXISTS #eligibility
+
+select * into #eligibility from
+
+(
+
+select
+'elig.mstrEligBenefitData' as TableName, IsActive, BenefitCardNumber,SubscriberID, MedicareID, insCarrierID, insHealthPlanID, BenefitStartDate, BenefitEndDate, RecordEffDate, RecordEndDate,  MasterMemberID, NHLinkID, 
+
+FirstName,LastName,Gender,dob,state,zipcode,HomePhoneNbr, OtherPhoneNbr, LineOfBusiness,
+
+ROW_NUMBER() OVER (PARTITION BY SubscriberID, MedicareID, insCarrierID, insHealthPlanID ORDER BY SubscriberID, MedicareID, insCarrierID, insHealthPlanID DESC) AS rowid
+
+from elig.mstrEligBenefitData
+
+where
+
+insCarrierID = 302 and isActive = 1 and (Getdate() between BenefitStartDate and BenefitEndDate ) and (Getdate() between RecordEffDate and RecordEndDate)
+
+) a
+
+where a.BenefitCardNumber is not null
+
+and BenefitCardNumber = '2897818887577'
+
+
+
+--select BenefitCardNumber, count(*) as RecordCount from #eligibility group by BenefitCardNumber order by 2 desc
+
+
+-- Use This
+
+DROP TABLE IF EXISTS #CardBenefitLoad_CI
+
+select * into #CardBenefitLoad_CI from (
+
+select 'otcfunds.CardBenefitLoad_CI' as TableName,IsActive, BenefitCardNumber, InsCarrierID, INsHealthPlanID, FirstTimeCardIssued, RequestRecordStatus, ResponseRecordStatus
+
+BenefitType,BenefitSource
+
+from otcfunds.CardBenefitLoad_CI where BenefitCardNumber in (select BenefitCardNumber from #eligibility)
+
+and IsActive =1 and RequestRecordStatus = 'SUCCESS' and ResponseRecordStatus = 'SUCCESS'
+
+) a
+
+where a.BenefitCardNumber ='2897818887577'
+
+
+--select * from #CardBenefitLoad_CI
+
+
+-- Use this
+
+DROP TABLE IF EXISTS #CardBenefitLoad_FD
+
+select * into #CardBenefitLoad_FD from (
+
+select 'otcfunds.CardBenefitLoad_FD' as TableName,IsActive, BenefitCardNumber, insCarrierID, InsHealthPlanID, BenefitType, BenefitSource, NBWalletCode,
+
+BenefitAmount, BenefitValidFrom, BenefitValidTo, RequestRecordStatus, ResponseRecordStatus
+
+from otcfunds.CardBenefitLoad_FD where BenefitCardNumber in (select BenefitCardNumber from #eligibility) and Getdate() between BenefitValidFrom and BenefitValidTo
+
+and RequestRecordStatus = 'SUCCESS' and ResponseRecordStatus = 'SUCCESS' and IsActive = 1
+
+) a
+
+where a.BenefitCardNumber = '2897818887577'
+
+
+/*
+
+select BenefitCardNumber, count(*) as rc from #CardBenefitLoad_FD group by BenefitCardNumber order by 2 desc
+
+select * from #CardBenefitLoad_FD where BenefitCardNumber = '0318277482687'
+
+*/
+
+
+/*
+
+DROP TABLE IF EXISTS #Monetary_ValueLoad
+
+select * into #Monetary_ValueLoad from (
+select 'fisxtract.Monetary' as TableName_ValueLoad, PANProxyNumber, PurseName,  substring( cast(year(getdate()) as varchar), 3,2) as PurseNameYear, substring(PurseName, 6,2) as PurseNameMonth, PurseExpirationDate, PurseStatus, PurseStatusDate, TxnLocalAmount, MerchantName, AuthorizationBalance, txnsign, txnTypeName, settleAmount, WCSUTCPostDate 
+
+from fisxtract.Monetary where PANProxyNumber in (select BenefitCardNumber from #eligibility) and MerchantName = 'MANUAL BATCH LOADER' and txnTypeName = 'ValueLoad'
+
+and month(Getdate()) = substring(PurseName, 6,2) and substring( cast(year(getdate()) as varchar), 3,2) = substring(PurseName, 4,2)
+
+) a
+
+*/
+
+
+-- Use This
+
+DROP TABLE IF EXISTS #Monetary_ValueLoad_Amount
+
+select * into #Monetary_ValueLoad_Amount from (
+select 'fisxtract.Monetary' as TableName_ValueLoad, PANProxyNumber, PurseName,  substring( cast(year(getdate()) as varchar), 3,2) as PurseNameYear, substring(PurseName, 6,2) as PurseNameMonth
+
+, sum(AuthorizationBalance) as TotalBalance
+
+from fisxtract.Monetary where PANProxyNumber in (select BenefitCardNumber from #eligibility) and MerchantName = 'MANUAL BATCH LOADER' and txnTypeName = 'ValueLoad'
+
+and month(Getdate()) = substring(PurseName, 6,2) and substring( cast(year(getdate()) as varchar), 3,2) = substring(PurseName, 4,2)
+
+and txnsign =1
+
+group by PANProxyNumber, PurseName
+
+) a
+
+where a.PANProxyNumber = '2897818887577'
+
+
+/*
+
+select PANProxyNumber, count(*) as rc from #Monetary_ValueLoad_Amount group by PANProxyNumber order by 2 desc
+
+select * from #Monetary_ValueLoad_Amount where PANProxyNumber = 9272955176158
+
+*/
+
+
+
+-- Use This
+
+DROP TABLE IF EXISTS #Monetary_Transactions
+
+select * into #Monetary_Transactions from (
+
+select 'fisxtract.Monetary' as TableName_Transactions, PANProxyNumber, PurseName, sum(settleAmount) as TotalTransactionAmount from
+
+fisxtract.Monetary where PANProxyNumber in (select BenefitCardNumber from #eligibility) and MerchantName not in ('MANUAL BATCH LOADER', 'CUSTOMER SERVICE')
+
+and month(Getdate()) = substring(PurseName, 6,2) and substring( cast(year(getdate()) as varchar), 3,2) = substring(PurseName, 4,2)
+
+and Len(PurseName) = 7
+
+group by PANProxyNumber, PurseName
+
+) a
+
+where a.PANProxyNumber = '2897818887577'
+
+
+
+/*
+select top 100  'fisxtract.NonMonetary' as TableName, PANProxyNumber, RecordType, CardNumber, ActivateDate, CardStatus, CardStatusDescription, CardNumberLocCreationDate, CardNumberLocExpirationDate, CardNumberLocStatusEffectiveDate,
+
+*
+
+from fisxtract.NonMonetary where PANProxyNumber in (select BenefitCardNumber from #eligibility)
+
+and PANProxyNumber = '9272955176158'
+
+order by FileTrackID desc
+
+*/
+
+
+-- Use This | Card Shipped or mailed
+
+DROP TABLE IF EXISTS #NonMonetary_CardShipped
+
+select * into #NonMonetary_CardShipped from (
+
+select PANProxyNumber, CardStatus, CardNumberLocCreationDate as card_mail_date, CardNumberLocExpirationDate,
+
+ROW_NUMBER() OVER (PARTITION BY PANProxyNumber ORDER BY PANProxyNumber, CardNumberLocCreationDate DESC) AS rowid
+
+from fisxtract.NonMonetary where PANProxyNumber in (select BenefitCardNumber from #eligibility)
+
+and RequestCodeDescription like '%shipping%' and RequestCodeDescription like '%Complete%'
+
+-- and PANProxyNumber = '0015067103231'
+
+) a
+
+where a.rowid = 1
+
+and a.PANProxyNumber = '2897818887577'
+
+
+
+-- Use This | Card Activated
+
+DROP TABLE IF EXISTS #NonMonetary_CardActivate
+
+select * into #NonMonetary_CardActivate from (
+
+select PANProxyNumber, CardStatus, CardStatusDescription,
+
+CASE WHEN UPPER(LTRIM(RTRIM(CardStatusDescription))) in ('ACTIVE') THEN 1
+        ELSE 0
+        END 
+
+AS card_activation_status,
+
+CardNumberLocCreationDate, CardNumberLocExpirationDate, ActivateDate as card_activation_date,
+
+ROW_NUMBER() OVER (PARTITION BY PANProxyNumber ORDER BY PANProxyNumber, ActivateDate DESC) AS rowid
+
+from fisxtract.NonMonetary where PANProxyNumber in (select BenefitCardNumber from #eligibility)
+
+and RequestCodeDescription like '%Activate%' and RequestCodeDescription like '%account%'
+
+-- and PANProxyNumber = '0015067103231'
+
+) a
+
+where a.rowid = 1
+
+and a.PANProxyNumber = '2897818887577'
+
+
+
+DROP TABLE IF EXISTS #BenefitSummary
+
+select * into #BenefitSummary from (
+
+
+select
+
+e.SubscriberID as member_id, e.FirstName as first_name, e.LastName as last_name, e.gender as gender, format(e.dob, 'MM/dd/yyyy') as dob, e.state as state, e.zipcode as zipcode,
+
+e.HomePhoneNbr as primary_phone_num,
+
+e.OtherPhoneNbr as secondary_phone_num,
+
+e.MedicareID as contract_id,
+--e.LineOfBusiness as lob  -- removed
+
+format(c.card_mail_date,'MM/dd/yyyy') as card_mail_date, d.card_activation_status, format(d.card_activation_date,'MM/dd/yyyy') as card_activation_date,
+
+b.TotalBalance as card_allowance, a.TotalTransactionAmount as card_spend, ( b.TotalBalance - a.TotalTransactionAmount) as card_balance, format(cast(getdate() as date), 'MM/dd/yyyy') as update_date
+
+,a.PurseName, a.PANProxyNumber
+
+
+from #Monetary_Transactions a
+
+left join #Monetary_ValueLoad_Amount b on a.PANProxyNumber = b.PANProxyNumber and a.PurseName = b.PurseName
+
+left join #eligibility e on e.BenefitCardNumber = a.PANProxyNumber
+
+left join #NonMonetary_CardShipped c on c.PANProxyNumber = b.PANProxyNumber
+
+left join #NonMonetary_CardActivate d on d.PANProxyNumber = b.PANProxyNumber
+
+-- order by PANProxyNumber
+
+) a
+
+where a.PANProxyNumber = '2897818887577'
+
+
+
+--select * from #BenefitSummary
+
+select Output from (
+
+
+select 1 as One,
+
+('member_id'+' | '+
+
+'first_name'+' | '+
+
+'last_name'+' | '+
+
+'gender'+' | '+
+
+'dob'+' | '+
+
+'state'+' | '+
+
+'zipcode'+' | '+
+
+'primary_phone_num'+' | '+
+
+'secondary_phone_num'+' | '+
+
+'contract_id'+' | '+
+
+'card_mail_date'+' | '+
+
+'card_activation_status'+' | '+
+
+'card_activation_date'+' | '+
+
+'card_allowance'+' | '+
+
+'card_balance'+' | '+
+
+'update_date') as Output
+
+UNION
+
+Select 2 as One,
+
+(
+
+cast(member_id as varchar) + ' | '+
+
+cast(first_name as varchar) + ' | '+
+
+cast(last_name as varchar) + ' | '+
+
+cast(gender as varchar) + ' | '+
+
+cast(dob as varchar) + ' | '+
+
+cast(state as varchar) + ' | '+
+
+cast(zipcode as varchar) + ' | '+
+
+cast(primary_phone_num as varchar) + ' | '+
+
+cast(secondary_phone_num as varchar) + ' | '+
+
+cast(contract_id as varchar) + ' | '+
+
+cast(card_mail_date as varchar) + ' | '+
+
+cast(card_activation_status as varchar) + ' | '+
+
+cast(card_activation_date as varchar) + ' | '+
+
+cast(card_allowance as varchar) + ' | '+
+
+cast(card_balance as varchar) + ' | '+
+
+cast(update_date as varchar)
+
+) as Output
+
+from #BenefitSummary
+
+
+) a
+
+order by a.One
+
+
+[10/6/2022 10:42 PM] Santhosh Balla
+--------------------------------------------------Aetna Benefit Summary End---------------------------------------------------------
+
+
+-- This is to get all PANProxyNumbers that have multiple CardNumberProxy's
+select distinct PanProxyNumber, CardNumber, CardNumberProxy from fisxtract.Monetary where
+PanProxyNumber in
+(
+select PanProxyNumber from
+            (
+                select PANProxyNumber, CardNumber, CardNumberProxy, ROW_NUMBER() OVER (PARTITION BY PANProxyNumber ORDER BY CardNumber DESC) AS rowid from    
+                        (
+                        select distinct PANProxyNumber, CardNumber, CardNumberProxy from fisxtract.Monetary where PANProxyNumber in (select BenefitCardNumber from #eligibility)
+                        ) a
+        
+            ) a
+            where a.rowid = 2
+)
+
+
+Order by 1
+
+--------------------------------------------------Aetna Benefit Summary End---------------------------------------------------------
+
+
+[10/13/2022 3:23 PM] Santhosh Balla
+----------------------------------------------------Inactivate HealthPlans and benefitCrossWalk--------------------------------------------
+[10/13/2022 3:23 PM] Santhosh Balla
+
+
+-- select Plans made InActive, year 2022
+
+select [IsActive], [InsuranceHealthPlanID], [HealthPlanName], [HealthPlanNumber], [InsuranceCarrierID], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode], [CreateDate], [CreateUser]
+from [Insurance].[InsuranceHealthPlans] where [InsuranceHealthPlanID] in (4949,4951,4952)  and InsuranceCarrierID = 141
+
+
+-- select Plans Added Active, year 2023
+
+select [InsuranceHealthPlanID], [HealthPlanName], [IsActive], [HealthPlanNumber], [InsuranceCarrierID], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode], [CreateDate], [CreateUser]
+
+from [Insurance].[InsuranceHealthPlans] where InsuranceCarrierID = 141
+
+and [HealthPlanName] in ('MVP Medicare Preferred Gold without Part D (HMO-POS) H3305-020','MVP Medicare Secure with Part D (HMO-POS) H3305-030','MVP Medicare WellSelect with Part D (PPO) H9615-008','MVP Medicare Patriot Plan with Part D (PPO) H9615-018')
+
+
+-- select Plans made InActive in BenefitCrossWalk, year 2022
+select [Isactive],[ContractNbr],[PBPID],[InsuranceCarrierId],[InsuranceHealthPlanId], [ClientCode],  [GroupNbr], [ProductID], [PlanID],  [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber],  [InsuranceHealthPlanId],  [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]
+
+from elig.BenefitCrossWalk where [ContractNbr] = 'H3305' and [PBPID] in ('014','016', '017') -- ID in (37526, 37527, 37528 ) in Production
+
+
+-- select Plans Made Active in BenefitCrossWalk, year 2023
+select [Isactive],[ContractNbr],[PBPID],[InsuranceCarrierId],[InsuranceHealthPlanId], [ClientCode],  [GroupNbr], [ProductID], [PlanID],  [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber],  [InsuranceHealthPlanId],  [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]
+from elig.BenefitCrossWalk where [ContractNbr] in ( 'H3305', 'H9615') and [PBPID] in ('020','030', '008', '018' ) and ClientCode = 'H482' --  in Production 
+
+
+
+begin transaction MVPConfiguration
+
+
+-- Update the InsuranceHealthPlan Table
+Update insurance.insuranceHealthPlans set IsActive = 0 where InsuranceHealthPlanID = 4949 and InsuranceCarrierID = 141   -- H3305-014 | MVP Medicare Patriot Plan with Part D (PPO) H9615-014
+Update insurance.insuranceHealthPlans set IsActive = 0 where InsuranceHealthPlanID = 4951 and InsuranceCarrierID = 141   -- H3305-016 | UVM Health Advantage Secure H9615-016
+Update insurance.insuranceHealthPlans set IsActive = 0 where InsuranceHealthPlanID = 4952 and InsuranceCarrierID = 141   -- H3305-017 | UVM Health Advantage Preferred H9615-017
+
+
+-- Update the BenefitCrossWalk Table
+update elig.BenefitCrossWalk set IsActive = 0 where ClientCode = 'H482' and ContractNbr = 'H3305' and PBPID = '014' and InsuranceCarrierID = 141   -- H3305-014 | MVP Medicare Patriot Plan with Part D (PPO) H9615-014
+update elig.BenefitCrossWalk set IsActive = 0 where ClientCode = 'H482' and ContractNbr = 'H3305' and PBPID = '016' and InsuranceCarrierID = 141   -- H3305-016 | UVM Health Advantage Secure H9615-016
+update elig.BenefitCrossWalk set IsActive = 0 where ClientCode = 'H482' and ContractNbr = 'H3305' and PBPID = '017' and InsuranceCarrierID = 141   -- H3305-017 | UVM Health Advantage Preferred H9615-017
+
+
+/*
+
+Plans being added in 2023: Original
+H3305-020           MVP Medicare Preferred Gold without Part D (HMO-POS)  OTC - $25 per quarter, no rollover, all members qualify
+H3305-030           MVP Medicare Secure with Part D (HMO-POS) OTC - $25 per quarter, no rollover, all members qualify
+H9615-008           MVP Medicare WellSelect with Part D (PPO) – OTC - $25 per quarter, no rollover, all members qualify
+H9615-018           MVP Medicare Patriot Plan with Part D (PPO) – OTC - $25 per quarter, no rollover, all members qualify
+
+
+-- This was how the HealthPlan was inserted
+H3305-020           MVP Medicare Preferred Gold without Part D (HMO-POS) H3305-020
+H3305-030           MVP Medicare Secure with Part D (HMO-POS) H3305-030
+H9615-008           MVP Medicare WellSelect with Part D (PPO) H9615-008
+H9615-018           MVP Medicare Patriot Plan with Part D (PPO) H9615-018
+
+*/
+
+
+-- Insert the 4 HealthPlans for the Carrier MVP (141)
+
+INSERT [Insurance].[InsuranceHealthPlans] ( [CreateDate], [CreateUser], [HealthPlanName], [HealthPlanNumber], [InsuranceCarrierID], [IsActive], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode]) VALUES (getdate(), N'appuser', N'MVP Medicare Preferred Gold without Part D (HMO-POS) H3305-020', N'H3305-020', 141, 1, 0, getdate(), N'appuser', 0, 0, NULL, 0)
+
+INSERT [Insurance].[InsuranceHealthPlans] ( [CreateDate], [CreateUser], [HealthPlanName], [HealthPlanNumber], [InsuranceCarrierID], [IsActive], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode]) VALUES (getdate(), N'appuser', N'MVP Medicare Secure with Part D (HMO-POS) H3305-030', N'H3305-030', 141, 1, 0, getdate(), N'appuser', 0, 0, NULL, 0)
+
+INSERT [Insurance].[InsuranceHealthPlans] ( [CreateDate], [CreateUser], [HealthPlanName], [HealthPlanNumber], [InsuranceCarrierID], [IsActive], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode]) VALUES (getdate(), N'appuser', N'MVP Medicare WellSelect with Part D (PPO) H9615-008',N'H9615-008', 141, 1, 0, getdate(), N'appuser', 0, 0, NULL, 0)
+
+INSERT [Insurance].[InsuranceHealthPlans] ( [CreateDate], [CreateUser], [HealthPlanName], [HealthPlanNumber], [InsuranceCarrierID], [IsActive], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode]) VALUES (getdate(), N'appuser', N'MVP Medicare Patriot Plan with Part D (PPO) H9615-018', N'H9615-018', 141, 1, 0, getdate(), N'appuser', 0, 0, NULL, 0)
+    
+
+-- Insert the 4 HealthPlans with ContractNbr and PBPID
+
+INSERT [elig].[BenefitCrossWalk] ( [ClientCode], [ContractNbr], [GroupNbr], [ProductID], [PlanID], [PBPID], [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber], [InsuranceCarrierId], [InsuranceHealthPlanId], [Isactive], [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]) VALUES
+
+( N'H482', N'H3305', NULL, NULL, NULL, N'020', NULL, N'MVP Medicare Preferred Gold without Part D (HMO-POS) H3305-020', NULL, NULL, 141, (select InsuranceHealthPlanID from [Insurance].[InsuranceHealthPlans] where HealthPlanName like '%H3305-020%' and HealthPlanName like '%MVP%') , 1, getdate(), N'appuser', getdate(), N'appuser', NULL, NULL, NULL, NULL, NULL, NULL)
+
+INSERT [elig].[BenefitCrossWalk] ( [ClientCode], [ContractNbr], [GroupNbr], [ProductID], [PlanID], [PBPID], [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber], [InsuranceCarrierId], [InsuranceHealthPlanId], [Isactive], [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]) VALUES
+( N'H482', N'H3305', NULL, NULL, NULL, N'030', NULL, N'MVP Medicare Secure with Part D (HMO-POS) H3305-030', NULL, NULL, 141, (select InsuranceHealthPlanID from [Insurance].[InsuranceHealthPlans] where HealthPlanName like '%H3305-030%' and HealthPlanName like '%MVP%'), 1,  getdate(), N'appuser', getdate(), N'appuser', NULL, NULL, NULL, NULL, NULL, NULL)
+
+INSERT [elig].[BenefitCrossWalk] ( [ClientCode], [ContractNbr], [GroupNbr], [ProductID], [PlanID], [PBPID], [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber], [InsuranceCarrierId], [InsuranceHealthPlanId], [Isactive], [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]) VALUES
+( N'H482', N'H9615', NULL, NULL, NULL, N'008', NULL, N'MVP Medicare WellSelect with Part D (PPO) H9615-008', NULL, NULL, 141, (select InsuranceHealthPlanID from [Insurance].[InsuranceHealthPlans] where HealthPlanName like '%H9615-008%' and HealthPlanName like '%MVP%'), 1,  getdate(), N'appuser', getdate(), N'appuser', NULL, NULL, NULL, NULL, NULL, NULL)
+
+INSERT [elig].[BenefitCrossWalk] ( [ClientCode], [ContractNbr], [GroupNbr], [ProductID], [PlanID], [PBPID], [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber], [InsuranceCarrierId], [InsuranceHealthPlanId], [Isactive], [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]) VALUES
+( N'H482', N'H9615', NULL, NULL, NULL, N'018', NULL, N'MVP Medicare Patriot Plan with Part D (PPO) H9615-018', NULL, NULL, 141, (select InsuranceHealthPlanID from [Insurance].[InsuranceHealthPlans] where HealthPlanName like '%H9615-018%' and HealthPlanName like '%MVP%'), 1,  getdate(), N'appuser', getdate(), N'appuser', NULL, NULL, NULL, NULL, NULL, NULL)
+
+
+
+-- Select query to check is the values are updated and inserted correctly
+
+
+-- select Plans made InActive, year 2022
+select [IsActive],[InsuranceHealthPlanID], [HealthPlanName],  [HealthPlanNumber], [InsuranceCarrierID], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode], [CreateDate], [CreateUser]
+from [Insurance].[InsuranceHealthPlans] where [InsuranceHealthPlanID] in (4949,4951,4952)  and InsuranceCarrierID = 141
+
+
+-- select Plans Added Active, year 2023
+select [IsActive],[InsuranceHealthPlanID], [HealthPlanName],  [HealthPlanNumber], [InsuranceCarrierID], [IsDiscountProgram], [ModifyDate], [ModifyUser], [IsMedicaid], [IsMedicare], [PlanConfigData], [IsProgramCode], [CreateDate], [CreateUser]
+
+from [Insurance].[InsuranceHealthPlans] where InsuranceCarrierID = 141
+
+and [HealthPlanName] in ('MVP Medicare Preferred Gold without Part D (HMO-POS) H3305-020','MVP Medicare Secure with Part D (HMO-POS) H3305-030','MVP Medicare WellSelect with Part D (PPO) H9615-008','MVP Medicare Patriot Plan with Part D (PPO) H9615-018')
+
+
+-- select Plans made InActive in BenefitCrossWalk, year 2022
+select [Isactive],[ContractNbr],[PBPID],[InsuranceCarrierId],[InsuranceHealthPlanId], [ClientCode],  [GroupNbr], [ProductID], [PlanID],  [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber],  [InsuranceHealthPlanId],  [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]
+
+from elig.BenefitCrossWalk where [ContractNbr] = 'H3305' and [PBPID] in ('014','016', '017') -- ID in (37526, 37527, 37528 ) in Production
+
+
+-- select Plans Made Active in BenefitCrossWalk, year 2023
+select [Isactive],[ContractNbr],[PBPID],[InsuranceCarrierId],[InsuranceHealthPlanId], [ClientCode],  [GroupNbr], [ProductID], [PlanID],  [LOB], [PlanName], [IncommPlanCode], [HealthPlanNumber],  [InsuranceHealthPlanId],  [CreateDate], [CreateUser], [ModifyDate], [ModifyUser], [SubGroupNbr], [BusinessCategory], [ProductValueCode], [CarrierPriority], [HealthPlanStartDate], [HealthPlanEndDate]
+from elig.BenefitCrossWalk where [ContractNbr] in ( 'H3305', 'H9615') and [PBPID] in ('020','030', '008', '018' ) and ClientCode = 'H482' --  in Production 
+
+
+
+Rollback transaction MVPConfiguration
+[10/13/2022 3:24 PM] Santhosh Balla
+----------------------------------------------------Inactivate HealthPlans and benefitCrossWalk--------------------------------------
+
+
+
+
+
+
+
+
